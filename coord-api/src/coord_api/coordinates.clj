@@ -25,15 +25,9 @@
 (defn- transform-to-type [coordinates]
   ;; Transforms a given arbitrary coordinate file
   ;; content into an more structure internal data structure
-  (hash-map :toggle (extract-action-type "toggle" coordinates)
+  (sorted-map :toggle (extract-action-type "toggle" coordinates)
             :activate (extract-action-type "^activate" coordinates)
             :deactivate (extract-action-type "deactivate" coordinates)))
-
-(defn get-coords []
-  (transform-to-type coordinates))
-
-(defn get-filtered-coords [type-filter]
-  ((keyword type-filter) (get-coords)))
 
 (defn- compute-coords [avec]
   (let [x1 (get-in avec [0 0])
@@ -43,10 +37,17 @@
     (for [x (range x1 (inc x2)) y (range y1 (inc y2))]
       (list x y))))
 
-(defn generate-sub-grid-coords [sub-grid]
-  (let [grid-coords {}]
+(defn- generate-sub-grid-coords [sub-grid]
+  (let [grid-coords (sorted-map)]
       (map (fn [scale]
          (assoc grid-coords scale (compute-coords scale))) sub-grid)))
+
+;; Public Interface
+(defn get-coords []
+  (transform-to-type coordinates))
+
+(defn get-filtered-coords [type-filter]
+  ((keyword type-filter) (get-coords)))
 
 (defn generate-grid-coords []
   (let [coordinates (get-coords)]
