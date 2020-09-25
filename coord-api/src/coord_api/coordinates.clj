@@ -35,16 +35,18 @@
 (defn get-filtered-coords [type-filter]
   ((keyword type-filter) (get-coords)))
 
+(defn- compute-coords [avec]
+  (let [x1 (get-in avec [0 0])
+        y1 (get-in avec [0 1])
+        x2 (get-in avec [1 0])
+        y2 (get-in avec [1 1])]
+    (for [x (range x1 (inc x2)) y (range y1 (inc y2))]
+      (list x y))))
+
 (defn generate-sub-grid-coords [sub-grid]
-  (map (fn [avec]
-         (let [x1 (first (first avec))
-               y1 (first (second avec))
-               x2 (second (first avec))
-               y2 (second (second avec))
-               coords (for [x (range x1 (+ x2 1)) y (range y1 (+ y2 1))]
-                        (list x y))]
-           {avec coords}))
-       sub-grid))
+  (let [grid-coords {}]
+      (map (fn [scale]
+         (assoc grid-coords scale (compute-coords scale))) sub-grid)))
 
 (defn generate-grid-coords []
   (let [coordinates (get-coords)]
